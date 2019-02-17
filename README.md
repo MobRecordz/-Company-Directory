@@ -1,4 +1,4 @@
-# test
+# Company Directory
 
 ## Project setup
 ```

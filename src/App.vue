@@ -1,28 +1,42 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <div class="nav-item mr-2"><router-link to="/">Главная</router-link></div>
+      <div class="nav-item">
+        <router-link to="/info">Информация</router-link>
+      </div>
     </div>
+
     <router-view />
   </div>
 </template>
 
 <style lang="scss">
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 #nav {
-  padding: 30px;
+  margin: 6vh auto;
+  width: 75vw;
+  display: flex;
+
+  .nav-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 8vw;
+    height: 4vh;
+    border-radius: 5px;
+    transition: all .2s ease-out;
+
+    &:hover {
+      background-color: rgb(246, 246, 246);
+    }
+  }
+
   a {
-    font-weight: bold;
+    text-decoration: none;
+    // font-weight: bold;
     color: #2c3e50;
     &.router-link-exact-active {
-      color: #42b983;
+      color: #0099ff;
     }
   }
 }
