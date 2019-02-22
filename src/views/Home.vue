@@ -28,11 +28,6 @@ export default {
     companyTable,
     createCompany
   },
-  watch: {
-    getTotalRows(val) {
-      this.totalRows = val;
-    }
-  },
   computed: {
     getAllCompanies() {
       return this.$store.getters.companies;

@@ -18,7 +18,7 @@
       fixed
       no-provider-paging
       ref="table"
-      :busy.sync="isLoading"
+      :busy="isLoading"
       :items="companyArray"
       :fields="fields"
       :current-page="currentPage"

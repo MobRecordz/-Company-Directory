@@ -14,7 +14,9 @@
               v-model="inn"
               required
               placeholder="Пример: 644901001"
+              
             />
+            {{ suggestionsItems }}
           </b-form-group>
 
           <b-form-group label="Название Компании:" label-for="companyName">
@@ -29,7 +31,7 @@
 
           <b-form-group label="Email компании:" label-for="companyLeader">
             <b-form-input
-              id="companyLeader"
+              id="companyEmail"
               type="email"
               v-model="companyEmail"
               required
@@ -59,16 +61,21 @@
         </b-form>
       </b-card>
     </b-collapse>
+
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+import $ from 'jquery'
+import suggestions from 'suggestions-jquery'
+
 export default {
   name: "create-company",
   props: ["state"],
   data() {
     return {
-      inn: "",
+      inn: '',
       companyName: "",
       companyEmail: "",
       companyLeader: "",
@@ -78,6 +85,24 @@ export default {
         msg: ""
       }
     };
+  },
+  computed: {
+    suggestionsItems() {
+      let that = this;
+      if(this.inn > 0) {
+        $('#inn').suggestions({
+          token: "5639cfe042dae3267a91973ef8db43f0a2c96f8e",
+          type: "PARTY",
+          count: 5,
+          /* Вызывается, когда пользователь выбирает одну из подсказок */
+          onSelect: function(suggestion) {
+            that.inn = suggestion.data.inn;
+            that.companyName = suggestion.value;
+            that.companyLeader = suggestion.data.management.name;
+          }
+        })
+      }
+    }
   },
 
   methods: {
@@ -141,5 +166,10 @@ export default {
 #create {
   width: 75vw;
   margin: 1vh auto;
+}
+
+.options {
+  position: relative;
+  background-color: rgb(214, 214, 214);
 }
 </style>
