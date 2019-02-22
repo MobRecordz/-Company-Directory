@@ -13,11 +13,11 @@
               type="text"
               v-model="inn"
               required
-              placeholder="Пример: 644901001"
-              
+              placeholder="Пример: 644901001"     
             />
-            {{ suggestionsItems }}
           </b-form-group>
+
+
 
           <b-form-group label="Название Компании:" label-for="companyName">
             <b-form-input
@@ -66,7 +66,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import $ from 'jquery'
 import suggestions from 'suggestions-jquery'
 
@@ -86,9 +85,10 @@ export default {
       }
     };
   },
-  computed: {
-    suggestionsItems() {
+  watch: {
+    inn(val) {
       let that = this;
+      console.log('awd')
       if(this.inn > 0) {
         $('#inn').suggestions({
           token: "5639cfe042dae3267a91973ef8db43f0a2c96f8e",
@@ -101,11 +101,13 @@ export default {
             that.companyLeader = suggestion.data.management.name;
           }
         })
+        $('#inn').focus();
       }
     }
   },
 
   methods: {
+
     onSubmit() {
       window.event.preventDefault();
 
