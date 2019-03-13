@@ -14,7 +14,10 @@
               v-model="inn"
               required
               placeholder="Пример: 644901001"     
+              @focus="onFocus('inn')"
+              @blur='onBlur'
             />
+            
           </b-form-group>
 
 
@@ -26,6 +29,8 @@
               v-model="companyName"
               required
               placeholder="Введите название"
+              @focus="onFocus('companyName')"
+              @blur='onBlur'
             />
           </b-form-group>
 
@@ -36,6 +41,8 @@
               v-model="companyEmail"
               required
               placeholder="example@gmail.com"
+              @focus="onFocus('companyEmail')"
+              @blur='onBlur'
             />
           </b-form-group>
           <br />
@@ -49,7 +56,9 @@
               type="text"
               v-model="companyLeader"
               required
-              placeholder="Например: Иван Иванович"
+              placeholder="Пример: Иван Иванович"
+              @focus="onFocus('companyLeader')"
+              @blur='onBlur'
             />
           </b-form-group>
 
@@ -62,12 +71,23 @@
       </b-card>
     </b-collapse>
 
+    <div id="suggestions" v-show='suggestionsIsShow'>
+
+         <li v-for="(item, index) in suggestions" @click='autocomplete(index)'>
+           <div> <strong>Название:</strong> {{item.data.name.full}}</div>
+           <div> <strong>ИНН:</strong> {{item.data.inn}}</div>
+           <div> <strong>Руководитель:</strong> {{item.data.management.name}}</div>
+         </li>
+    </div>
+
+
   </div>
 </template>
 
 <script>
 import $ from 'jquery'
 import suggestions from 'suggestions-jquery'
+import axios from 'axios'
 
 export default {
   name: "create-company",
@@ -79,6 +99,9 @@ export default {
       companyEmail: "",
       companyLeader: "",
 
+      suggestions: [],
+      suggestionsIsShow: false,
+
       error: {
         isShow: false,
         msg: ""
@@ -87,26 +110,64 @@ export default {
   },
   watch: {
     inn(val) {
-      let that = this;
-      console.log('awd')
-      if(this.inn > 0) {
-        $('#inn').suggestions({
-          token: "5639cfe042dae3267a91973ef8db43f0a2c96f8e",
-          type: "PARTY",
-          count: 5,
-          /* Вызывается, когда пользователь выбирает одну из подсказок */
-          onSelect: function(suggestion) {
-            that.inn = suggestion.data.inn;
-            that.companyName = suggestion.value;
-            that.companyLeader = suggestion.data.management.name;
-          }
-        })
-        $('#inn').focus();
-      }
+      this.getSuggestions(this.inn);
+    },
+    companyName() {
+       this.getSuggestions(this.companyName);
+    },
+    companyEmail() {
+       this.getSuggestions(this.companyEmail);
+    },
+    companyLeader() {
+       this.getSuggestions(this.companyLeader);
     }
   },
 
   methods: {
+    autocomplete(index) {
+      let info = this.suggestions[index];
+
+      this.inn = info.data.inn;
+      this.companyName = info.data.name.full;
+      this.companyLeader = info.data.management.name;
+
+      if(info.data.email == null) 
+        this.companyEmail = 'none@mail.com';
+      else 
+        this.companyEmail = info.data.emails[0]
+
+      this.suggestionsIsShow = false
+    },
+    onFocus(id) {
+      this.suggestionsIsShow = true;
+
+      let suggestionsEl = document.getElementById('suggestions'),
+          el = document.getElementById(id),
+          rect = el.getBoundingClientRect();
+
+      suggestionsEl.style.left = rect.x + 'px';
+      suggestionsEl.style.top = rect.y + 48 + 'px';
+    },
+    onBlur() {
+      setTimeout(()=>{this.suggestionsIsShow = false}, 100);
+    },
+    getSuggestions(query) {
+      let headers = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Token 5639cfe042dae3267a91973ef8db43f0a2c96f8e',
+        }
+      }
+
+      let data = {
+        'query': query
+      }
+
+      axios.post('https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/party', data, headers)
+          .then((res) => { this.suggestions = res.data.suggestions;
+          console.log(res) })
+    },
 
     onSubmit() {
       window.event.preventDefault();
@@ -125,7 +186,7 @@ export default {
             );
             break;
           } else if (item.companyEmail == this.companyEmail) {
-            this.triggerError("Компания с таким ЕМАИЛ уже существует.", true);
+            this.triggerError("Компания с таким EMAIL уже существует.", true);
             break;
           } else if (this.$store.getters.companies.length == i + 1) {
             this.triggerError("", false);
@@ -173,5 +234,29 @@ export default {
 .options {
   position: relative;
   background-color: rgb(214, 214, 214);
+}
+
+#suggestions {
+  position: absolute;
+  background-color: rgb(255, 255, 255);
+  border-radius: 4px;
+  // border: 1px solid rgb(199, 199, 199);
+  width: 30vw;
+  max-height: 30vh;
+  overflow: scroll;
+  overflow-x: hidden;
+
+  li {
+    list-style-type: none;
+    transition: .1s;
+    cursor: default;
+    border-bottom: 1px solid rgb(214, 214, 214);
+
+    &:hover {
+      background-color: #86cfff;
+      border-bottom: 1px solid #86cfff;
+    }
+  }
+  // margin: 1vh auto;
 }
 </style>
